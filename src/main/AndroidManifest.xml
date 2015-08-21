@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.pamu_nagarjuna.meetingroom"
+          android:versionCode="1"
+          android:versionName="1.0.0">
+
+    <uses-sdk
+            android:minSdkVersion="14"
+            android:targetSdkVersion="21"/>
+
+    <application
+            android:icon="@drawable/ic_launcher"
+            android:label="Meeting Room"
+            android:theme="@style/AppTheme">
+
+        <activity
+                android:name=".ui.main.MainActivity"
+                android:label="Meeting Room">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
