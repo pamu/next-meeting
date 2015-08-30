@@ -27,19 +27,9 @@ class MainActivity
     val moreSlots = List.fill(100)(Slot("Scala days", "Scala language ecosystem and best practices"))
 
     val fslots = for(calendarList <- Utils.getCalendars) yield (
-      for(calendar <- calendarList) yield Slot(calendar.calendarId, calendar.displayName + " " + calendar.locaion))
+      for(calendar <- calendarList) yield Slot(calendar.name, calendar.name))
 
     val adapter = new SlotListAdapter(moreSlots)
-
-    fslots onComplete {
-      case Success(list) => {
-        if (list.isEmpty) {
-          println("list is empty")
-        }
-        println(list.mkString(", "))
-      }
-      case Failure(th) =>  println(th.getMessage + " ")
-    }
 
     fslots.recover{case th => List(Slot("Failed", th.getMessage))}
 
@@ -51,6 +41,10 @@ class MainActivity
 
     runUi(
       recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
+    )
+
+    runUi(
+      recyclerView <~ rvLayoutManager(layoutManager) <~ fslots.map(slots => rvAdapter(new SlotListAdapter(slots)))
     )
 
     toolBar map setSupportActionBar

@@ -11,19 +11,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by pnagarjuna on 30/08/15.
  */
 object Utils {
-  case class Calendar(calendarId: String, displayName: String, location: String)
+  case class Calendar(name: String)
 
   def getCalendars(implicit activityContent: ActivityContextWrapper): Future[List[Calendar]] = Future {
       val resolver = activityContent.application.getContentResolver
       val cursor = resolver.query(Calendars.CONTENT_URI,
-        Array(Calendars.NAME, Calendars.NAME, Calendars.CALENDAR_LOCATION), null, null, null)
+        Array(Calendars.NAME), null, null, null)
       cursor.moveToFirst()
       var calendars = List.empty[Calendar]
       while (cursor.moveToNext()) {
-        val id = cursor.getString(cursor.getColumnIndex(Calendars.NAME))
         val name = cursor.getString(cursor.getColumnIndex(Calendars.NAME))
-        val location = cursor.getString(cursor.getColumnIndex(Calendars.CALENDAR_LOCATION))
-        calendars = Calendar(id, name, location) :: calendars
+        calendars = Calendar(name) :: calendars
         Log.d("calendars", calendars.mkString(", "))
       }
       cursor.close()
