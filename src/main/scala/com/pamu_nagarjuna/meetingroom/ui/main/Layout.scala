@@ -1,8 +1,9 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
 import android.support.v7.widget.{CardView, RecyclerView}
-import android.widget.{TextView, Button, LinearLayout}
+import android.widget.{SeekBar, TextView, LinearLayout}
 import com.pamu_nagarjuna.meetingroom.ui.commons.ToolbarLayout
+import com.fortysevendeg.macroid.extras.SeekBarTweaks._
 import macroid.ActivityContextWrapper
 import macroid.FullDsl._
 
@@ -13,11 +14,14 @@ trait Layout
   extends ToolbarLayout
   with Styles {
 
+  var spanBar = slot[SeekBar]
+
   var recyclerView = slot[RecyclerView]
 
   def layout(implicit contextWrapper: ActivityContextWrapper) = getUi(
     l[LinearLayout](
       toolBarLayout(),
+      w[SeekBar] <~ wire(spanBar) <~ sbMax(12) <~ spanBarStyle,
       w[RecyclerView] <~ wire(recyclerView) <~ listStyle
     ) <~ contentStyle
   )

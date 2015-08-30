@@ -1,7 +1,7 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
 import android.support.v7.widget.{CardView, RecyclerView}
-import android.widget.{TextView, LinearLayout}
+import android.widget.{SeekBar, TextView, LinearLayout}
 import com.fortysevendeg.macroid.extras.FrameLayoutTweaks._
 import com.fortysevendeg.macroid.extras.LinearLayoutTweaks._
 import com.fortysevendeg.macroid.extras.ResourcesExtras._
@@ -33,6 +33,9 @@ trait Styles {
       tvSizeResource(R.dimen.text_size) +
       tvColorResource(R.color.primary)
 
+  def spanBarStyle(implicit context: ContextWrapper): Tweak[SeekBar] =
+    vMatchWidth +
+      vPadding(20, 10, 20, 10)
 
 }
 
@@ -48,10 +51,12 @@ trait AdapterStyles {
   def titleStyle(implicit context: ContextWrapper): Tweak[TextView] =
     vMatchWidth +
       tvSizeResource(R.dimen.text_size) +
-      tvColorResource(R.color.primary)
+      tvColorResource(R.color.primary) +
+      vPadding(20, 10, 10, 10)
 
   def descriptionStyle(implicit context: ContextWrapper): Tweak[TextView] =
     vMatchWidth +
-    tvColorResource(R.color.accent)
+    tvColorResource(R.color.accent) +
+    vPadding(30, 10, 10, 10)
 
 }

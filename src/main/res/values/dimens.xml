@@ -51,6 +51,6 @@
     <integer name="text_small">12</integer>
     <integer name="text_info_window_snippet">11</integer>
 
-    <dimen name="text_size">25dp</dimen>
+    <dimen name="text_size">18dp</dimen>
 
 </resources>

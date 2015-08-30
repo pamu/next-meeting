@@ -5,8 +5,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.{LinearLayoutManager, GridLayoutManager}
 import com.fortysevendeg.macroid.extras.DeviceMediaQueries._
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
+import com.pamu_nagarjuna.meetingroom.ui.utils.Utils
 import macroid.Contexts
 import macroid.FullDsl._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Failure, Success}
 
 /**
  * Created by pnagarjuna on 14/08/15.
@@ -20,13 +24,24 @@ class MainActivity
     super.onCreate(savedInstanceState)
     setContentView(layout)
 
-    val slots = List(
-      Slot("Slot1", "Scala session"),
-      Slot("Slot2", "Scala js session"),
-      Slot("Slot3", "Scala Android Session")
-    )
+    val moreSlots = List.fill(100)(Slot("Scala days", "Scala language ecosystem and best practices"))
 
-    val adapter = new SlotListAdapter(slots)
+    val fslots = for(calendarList <- Utils.getCalendars) yield (
+      for(calendar <- calendarList) yield Slot(calendar.calendarId, calendar.displayName + " " + calendar.locaion))
+
+    val adapter = new SlotListAdapter(moreSlots)
+
+    fslots onComplete {
+      case Success(list) => {
+        if (list.isEmpty) {
+          println("list is empty")
+        }
+        println(list.mkString(", "))
+      }
+      case Failure(th) =>  println(th.getMessage + " ")
+    }
+
+    fslots.recover{case th => List(Slot("Failed", th.getMessage))}
 
     val layoutManager =
       landscapeTablet ?
