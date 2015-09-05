@@ -1,7 +1,8 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
 import android.support.v7.widget.{CardView, RecyclerView}
-import android.widget.{SeekBar, TextView, LinearLayout}
+import android.view.ViewGroup.LayoutParams._
+import android.widget.{ImageView, SeekBar, TextView, LinearLayout}
 import com.fortysevendeg.macroid.extras.FrameLayoutTweaks._
 import com.fortysevendeg.macroid.extras.LinearLayoutTweaks._
 import com.fortysevendeg.macroid.extras.ResourcesExtras._
@@ -10,6 +11,7 @@ import com.fortysevendeg.macroid.extras.ThemeExtras._
 import com.fortysevendeg.macroid.extras.ViewGroupTweaks._
 import com.fortysevendeg.macroid.extras.ViewTweaks._
 import com.pamu_nagarjuna.meetingroom.R
+import macroid.FullDsl._
 import macroid.{ActivityContextWrapper, ContextWrapper, Tweak}
 import scala.language.postfixOps
 
@@ -42,6 +44,7 @@ trait Styles {
 trait AdapterStyles {
   def cardStyle(implicit activityContext: ActivityContextWrapper): Tweak[CardView] =
     vMatchWidth +
+      vMinHeight(resGetDimensionPixelSize(R.dimen.card_height)) +
       (themeGetDrawable(android.R.attr.selectableItemBackground) map flForeground getOrElse Tweak.blank)
 
   def layoutStyle(implicit context: ContextWrapper): Tweak[LinearLayout] =
@@ -59,4 +62,8 @@ trait AdapterStyles {
     tvColorResource(R.color.accent) +
     vPadding(30, 10, 10, 10)
 
+
+  def lineHorizontalStyle(implicit context: ContextWrapper): Tweak[ImageView] =
+    lp[LinearLayout](MATCH_PARENT, resGetDimensionPixelSize(R.dimen.line_size)) +
+      vBackgroundColorResource(R.color.primary)
 }

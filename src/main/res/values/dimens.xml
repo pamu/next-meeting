@@ -52,5 +52,8 @@
     <integer name="text_info_window_snippet">11</integer>
 
     <dimen name="text_size">18dp</dimen>
+    <dimen name="line_size">1dp</dimen>
+
+    <dimen name="card_height">150dp</dimen>
 
 </resources>

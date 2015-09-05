@@ -1,8 +1,6 @@
 package com.pamu_nagarjuna.meetingroom.ui.utils
 
-import android.net.Uri
-import android.provider.CalendarContract.Calendars
-import android.util.Log
+import android.provider.CalendarContract
 import macroid.ActivityContextWrapper
 
 import scala.concurrent.Future
@@ -11,21 +9,23 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by pnagarjuna on 30/08/15.
  */
 object Utils {
-  case class Calendar(name: String)
-
-  def getCalendars(implicit activityContent: ActivityContextWrapper): Future[List[Calendar]] = Future {
-      val resolver = activityContent.application.getContentResolver
-      val cursor = resolver.query(Calendars.CONTENT_URI,
-        Array(Calendars.NAME), null, null, null)
-      cursor.moveToFirst()
-      var calendars = List.empty[Calendar]
-      while (cursor.moveToNext()) {
-        val name = cursor.getString(cursor.getColumnIndex(Calendars.NAME))
-        calendars = Calendar(name) :: calendars
-        Log.d("calendars", calendars.mkString(", "))
-      }
-      cursor.close()
-      calendars
+  def getEvents(dtstart: Long, dtend: Long)(implicit activityContent: ActivityContextWrapper): Future[List[(String, String)]] = Future {
+    val contentResolver = activityContent.application.getContentResolver
+    val cursor = contentResolver.query(CalendarContract.Events.CONTENT_URI,
+      Array("calendar_id", "organizer", "title", "dtstart", "dtend", "description", "duration"),
+    null,
+      null,
+      null)
+    //s"((dtstart >= ${dtstart.toString}) AND (dtend <= ${dtend.toString}))",
+    var tuples = List[(String, String)]()
+    cursor.moveToFirst()
+    while(cursor.moveToNext()) {
+      val title = cursor.getString(cursor.getColumnIndex("dtstart"))
+      val desc = cursor.getString(cursor.getColumnIndex("dtend"))
+      tuples = title -> desc :: tuples
     }
+    cursor.close()
+    tuples
+  }
 
 }

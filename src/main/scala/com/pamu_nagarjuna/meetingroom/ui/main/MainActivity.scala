@@ -1,5 +1,7 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
+import java.util.{Calendar, Date}
+
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.{LinearLayoutManager, GridLayoutManager}
@@ -10,7 +12,6 @@ import macroid.Contexts
 import macroid.FullDsl._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success}
 
 /**
  * Created by pnagarjuna on 14/08/15.
@@ -26,12 +27,16 @@ class MainActivity
 
     val moreSlots = List.fill(100)(Slot("Scala days", "Scala language ecosystem and best practices"))
 
-    val fslots = for(calendarList <- Utils.getCalendars) yield (
-      for(calendar <- calendarList) yield Slot(calendar.name, calendar.name))
-
     val adapter = new SlotListAdapter(moreSlots)
 
-    fslots.recover{case th => List(Slot("Failed", th.getMessage))}
+    val calendar = Calendar.getInstance()
+    val now = calendar.getTimeInMillis
+    calendar.add(Calendar.HOUR, 100)
+    val after = calendar.getTimeInMillis
+
+    val slots = for(list <- Utils.getEvents(now, after)) yield {
+      for(tuple <- list) yield Slot(tuple._1, tuple._2)
+    }
 
     val layoutManager =
       landscapeTablet ?
@@ -43,9 +48,15 @@ class MainActivity
       recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
     )
 
+    slots.recover {
+      case th => runUi(
+        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("Failed", th.getMessage))))
+      )
+    }
     runUi(
-      recyclerView <~ rvLayoutManager(layoutManager) <~ fslots.map(slots => rvAdapter(new SlotListAdapter(slots)))
+      recyclerView <~ rvLayoutManager(layoutManager) <~ slots.map(slots => rvAdapter(new SlotListAdapter(slots)))
     )
+
 
     toolBar map setSupportActionBar
 

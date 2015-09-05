@@ -1,7 +1,7 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
 import android.support.v7.widget.{CardView, RecyclerView}
-import android.widget.{SeekBar, TextView, LinearLayout}
+import android.widget.{ImageView, SeekBar, TextView, LinearLayout}
 import com.pamu_nagarjuna.meetingroom.ui.commons.ToolbarLayout
 import com.fortysevendeg.macroid.extras.SeekBarTweaks._
 import macroid.ActivityContextWrapper
@@ -40,6 +40,7 @@ class Adapter(implicit context: ActivityContextWrapper)
       l[CardView](
         l[LinearLayout](
           w[TextView] <~ wire(title) <~ titleStyle,
+          w[ImageView] <~ lineHorizontalStyle,
           w[TextView] <~ wire(description) <~ descriptionStyle
         ) <~ layoutStyle
       ) <~ cardStyle
