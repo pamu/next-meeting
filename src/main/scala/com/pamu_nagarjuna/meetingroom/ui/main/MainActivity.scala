@@ -1,12 +1,14 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
-import java.util.{Calendar, Date}
+import java.util.Calendar
 
-import android.os.Bundle
+import android.content.{Intent, ComponentName, ServiceConnection}
+import android.os.{IBinder, Bundle}
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.{LinearLayoutManager, GridLayoutManager}
 import com.fortysevendeg.macroid.extras.DeviceMediaQueries._
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
+import com.pamu_nagarjuna.meetingroom.ui.service.{MeetingRoomService, ServiceCallback}
 import com.pamu_nagarjuna.meetingroom.ui.utils.Utils
 import macroid.Contexts
 import macroid.FullDsl._
@@ -19,11 +21,28 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class MainActivity
   extends AppCompatActivity
   with Contexts[AppCompatActivity]
-  with Layout  {
+  with Layout
+  with ServiceCallback {
+
+  override def update(): Unit = {
+
+  }
+
+  val serviceConnection = new ServiceConnection {
+
+    override def onServiceDisconnected(componentName: ComponentName): Unit = {
+    }
+
+    override def onServiceConnected(componentName: ComponentName, iBinder: IBinder): Unit = {
+      iBinder.asInstanceOf[MeetingRoomService#LocalBinder].getInstance().register(MainActivity.this)
+    }
+  }
 
   override def onCreate(savedInstanceState: Bundle) = {
     super.onCreate(savedInstanceState)
     setContentView(layout)
+
+    bindService(new Intent(getApplicationContext, classOf[MeetingRoomService]), serviceConnection, 0)
 
     val moreSlots = List.fill(100)(Slot("Scala days", "Scala language ecosystem and best practices"))
 
