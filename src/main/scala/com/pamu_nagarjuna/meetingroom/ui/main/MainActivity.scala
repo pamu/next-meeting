@@ -6,14 +6,18 @@ import android.content.{Intent, ComponentName, ServiceConnection}
 import android.os.{IBinder, Bundle}
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.{LinearLayoutManager, GridLayoutManager}
+import android.view.{MenuItem, Menu}
 import com.fortysevendeg.macroid.extras.DeviceMediaQueries._
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
+import com.pamu_nagarjuna.meetingroom.R
 import com.pamu_nagarjuna.meetingroom.ui.service.{MeetingRoomService, ServiceCallback}
 import com.pamu_nagarjuna.meetingroom.ui.utils.Utils
 import macroid.Contexts
 import macroid.FullDsl._
+import play.api.libs.json.{Json, JsValue}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Created by pnagarjuna on 14/08/15.
@@ -44,18 +48,25 @@ class MainActivity
 
     bindService(new Intent(getApplicationContext, classOf[MeetingRoomService]), serviceConnection, 0)
 
-    val moreSlots = List.fill(100)(Slot("Scala days", "Scala language ecosystem and best practices"))
-
-    val adapter = new SlotListAdapter(moreSlots)
-
     val calendar = Calendar.getInstance()
-    val now = calendar.getTimeInMillis
-    calendar.add(Calendar.HOUR, 100)
-    val after = calendar.getTimeInMillis
+    val now = calendar.getTime
+    calendar.add(Calendar.HOUR, 1000)
+    val after = calendar.getTime
 
-    val slots = for(list <- Utils.getEvents(now, after)) yield {
-      for(tuple <- list) yield Slot(tuple._1, tuple._2)
-    }
+    val slots = Utils.getEvents(now, after).flatMap { json => {
+      Future {
+        println(Json.prettyPrint(json))
+        val items = (json \ "items").as[List[JsValue]]
+        items.map { item =>
+          Slot((item \ "summary").as[String],
+            (item \ "description").asOpt[String].getOrElse("No Description"),
+            ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
+            ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
+        }
+      }
+    }}
+
+    //slots.recover { case th =>  List(Slot("Error occurred", th.getMessage))}
 
     val layoutManager =
       landscapeTablet ?
@@ -63,13 +74,15 @@ class MainActivity
         tablet ?
           new GridLayoutManager(this, 2) | new LinearLayoutManager(this)
 
+    val adapter = new SlotListAdapter(List(Slot("No Items", "Kill and relaunch the app to load", "", "")))
+
     runUi(
       recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
     )
 
     slots.recover {
       case th => runUi(
-        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("Failed", th.getMessage))))
+        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("Failed", th.getMessage, "", ""))))
       )
     }
     runUi(
@@ -82,5 +95,20 @@ class MainActivity
     //getSupportActionBar.setDisplayHomeAsUpEnabled(true)
     //getSupportActionBar.setHomeButtonEnabled(true)
   }
+
+  override def onCreateOptionsMenu(menu: Menu): Boolean = {
+    getMenuInflater.inflate(R.menu.menu, menu)
+    true
+  }
+
+  override def onOptionsItemSelected(item: MenuItem): Boolean = {
+    item.getItemId match {
+      case R.id.settings =>
+        startActivity(new Intent(getApplicationContext, classOf[MeetingRoomPrefs]))
+        true
+      case _ => true
+    }
+  }
+
 
 }

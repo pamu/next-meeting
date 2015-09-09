@@ -1,11 +1,15 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
 import android.support.v7.widget.{CardView, RecyclerView}
+import android.view.Gravity
 import android.view.ViewGroup.LayoutParams._
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.{ImageView, SeekBar, TextView, LinearLayout}
 import com.fortysevendeg.macroid.extras.FrameLayoutTweaks._
 import com.fortysevendeg.macroid.extras.LinearLayoutTweaks._
 import com.fortysevendeg.macroid.extras.ResourcesExtras._
+import com.fortysevendeg.macroid.extras.SeekBarEventsExtras.OnSeekBarChangeListenerHandler
+import com.fortysevendeg.macroid.extras.TextTweaks
 import com.fortysevendeg.macroid.extras.TextTweaks._
 import com.fortysevendeg.macroid.extras.ThemeExtras._
 import com.fortysevendeg.macroid.extras.ViewGroupTweaks._
@@ -20,6 +24,17 @@ import scala.language.postfixOps
  */
 trait Styles {
 
+  def progressChange(f: (SeekBar, Int, Boolean) => Unit)(implicit contextWrapper: ContextWrapper): Tweak[SeekBar] =
+    Tweak[SeekBar](_.setOnSeekBarChangeListener(new OnSeekBarChangeListener {
+      override def onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean): Unit = {
+        f(seekBar, i, b)
+      }
+
+      override def onStopTrackingTouch(seekBar: SeekBar): Unit = {}
+
+      override def onStartTrackingTouch(seekBar: SeekBar): Unit = {}
+    }))
+
   def contentStyle(implicit context: ContextWrapper): Tweak[LinearLayout] =
     llVertical +
       vMatchParent
@@ -32,6 +47,7 @@ trait Styles {
 
   def textStyle(implicit context: ContextWrapper): Tweak[TextView] =
     vMatchWidth +
+      TextTweaks.tvGravity(Gravity.CENTER_HORIZONTAL) +
       tvSizeResource(R.dimen.text_size) +
       tvColorResource(R.color.primary)
 

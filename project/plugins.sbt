@@ -1,6 +1,6 @@
 logLevel := Level.Info
 
-addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % "1.4.12")
+addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % "1.4.13")
 
 
 addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.6.0")

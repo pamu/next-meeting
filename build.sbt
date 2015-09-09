@@ -37,13 +37,21 @@ libraryDependencies ++= Seq(
   aar(macroidExtras),
   aar(playServicesBase),
   apacheCommonsLang,
-  json4s,
+  //json4s,
+  playJson,
   specs2,
   mockito,
   androidTest,
   compilerPlugin(Libraries.wartRemover))
 
 run <<= run in Android
+
+
+apkbuildExcludes in Android ++= Seq(
+  "META-INF/LICENSE",
+  "META-INF/LICENSE.txt",
+  "META-INF/NOTICE",
+  "META-INF/NOTICE.txt")
 
 packageRelease <<= packageRelease in Android
 

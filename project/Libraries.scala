@@ -63,7 +63,8 @@ object Libraries {
   }
 
   object json {
-    lazy val json4s = "org.json4s" %% "json4s-native" % Versions.json4sV
+    //lazy val json4s = "org.json4s" %% "json4s-native" % Versions.json4sV
+    lazy val playJson = "com.typesafe.play" %% "play-json" % Versions.playJsonV
   }
 
   object test {
