@@ -29,6 +29,48 @@ class MainActivity
   with ServiceCallback {
 
   override def update(): Unit = {
+    val calendar = Calendar.getInstance()
+    val now = calendar.getTime
+    calendar.add(Calendar.HOUR, spanBar.map(_.getProgress).getOrElse(100))
+    val after = calendar.getTime
+
+    val slots = Utils.getEvents(now, after).flatMap { json => {
+      Future {
+        println(Json.prettyPrint(json))
+        val items = (json \ "items").as[List[JsValue]]
+        val slots = items.map { item =>
+          Slot((item \ "summary").as[String],
+            (item \ "description").asOpt[String].getOrElse("No Description"),
+            ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
+            ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
+        }
+        if (slots.isEmpty) List(Slot("No Events", "No events to show", "", "")) else
+          slots
+      }
+    }}
+
+    //slots.recover { case th =>  List(Slot("Error occurred", th.getMessage))}
+
+    val layoutManager =
+      landscapeTablet ?
+        new GridLayoutManager(this, 3) |
+        tablet ?
+          new GridLayoutManager(this, 2) | new LinearLayoutManager(this)
+
+    val adapter = new SlotListAdapter(List(Slot("Loading ...", "loading may take some time", "", "")))
+
+    runUi(
+      recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
+    )
+
+    slots.recover {
+      case th => runUi(
+        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("failed to fetch", "ensure you have the key and you entered the key in the settings section", "", ""))))
+      )
+    }
+    runUi(
+      recyclerView <~ rvLayoutManager(layoutManager) <~ slots.map(slots => rvAdapter(new SlotListAdapter(slots)))
+    )
 
   }
 
@@ -47,22 +89,25 @@ class MainActivity
     setContentView(layout)
 
     bindService(new Intent(getApplicationContext, classOf[MeetingRoomService]), serviceConnection, 0)
+    startService(new Intent(getApplication, classOf[MeetingRoomService]))
 
     val calendar = Calendar.getInstance()
     val now = calendar.getTime
-    calendar.add(Calendar.HOUR, 1000)
+    calendar.add(Calendar.HOUR, spanBar.map(_.getProgress).getOrElse(100))
     val after = calendar.getTime
 
     val slots = Utils.getEvents(now, after).flatMap { json => {
       Future {
         println(Json.prettyPrint(json))
         val items = (json \ "items").as[List[JsValue]]
-        items.map { item =>
+        val slots = items.map { item =>
           Slot((item \ "summary").as[String],
             (item \ "description").asOpt[String].getOrElse("No Description"),
             ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
             ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
         }
+        if (slots.isEmpty) List(Slot("No Events", "No events to show", "", "")) else
+        slots
       }
     }}
 
@@ -82,7 +127,7 @@ class MainActivity
 
     slots.recover {
       case th => runUi(
-        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("Failed", th.getMessage, "", ""))))
+        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("failed to fetch", "ensure you have the key and you entered the key in the settings section", "", ""))))
       )
     }
     runUi(

@@ -48,12 +48,15 @@ trait Layout
           Future {
             println(Json.prettyPrint(json))
             val items = (json \ "items").as[List[JsValue]]
-            items.map { item =>
+            val slots = items.map { item =>
               Slot((item \ "summary").as[String],
                 (item \ "description").asOpt[String].getOrElse("No Description"),
                 ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
                 ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
             }
+
+            if (slots.isEmpty) List(Slot("No Events", "No events to show", "", "")) else
+              slots
           }
         }}
 
@@ -73,7 +76,7 @@ trait Layout
 
         slots.recover {
           case th => runUi(
-            recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("Failed", th.getMessage, "", ""))))
+            recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("failed to fetch", "ensure you have the key and you entered the key in the settings section", "", ""))))
           )
         }
         runUi(

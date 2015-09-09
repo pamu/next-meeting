@@ -21,7 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ui.main.MeetingRoomPrefs"></activity>
         <service android:name=".ui.service.MeetingRoomService"></service>
+        <receiver android:name=".ui.MeetingRoomReceiver"></receiver>
     </application>
 
 </manifest>

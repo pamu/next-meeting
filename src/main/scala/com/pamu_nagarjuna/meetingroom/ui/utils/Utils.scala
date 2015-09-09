@@ -43,7 +43,7 @@ object Utils {
   val key = "pamu"
 
   def getEvents(timeMin: Date, timeMax: Date)(implicit context: ContextWrapper): Future[JsValue] = {
-    val key = PreferenceManager.getDefaultSharedPreferences(context.application).getString("key", "")
+    val key = PreferenceManager.getDefaultSharedPreferences(context.application).getString("key", "").trim
     val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     format.setTimeZone(TimeZone.getTimeZone("UTC"))
     Future {
