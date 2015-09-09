@@ -30,6 +30,7 @@ class MeetingRoomService extends Service {
     val nBuilder = new Builder(getApplication);
     nBuilder.setContentTitle("Meeting Room App")
     nBuilder.setContentText("running ...")
+    nBuilder.setContentInfo("App running the background")
     val intent = new Intent(getApplication, classOf[MainActivity])
     val pIntent = PendingIntent.getActivity(getApplication, 0, intent, 0)
     nBuilder.setContentIntent(pIntent)

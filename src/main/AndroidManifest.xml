@@ -15,7 +15,8 @@
 
         <activity
                 android:name=".ui.main.MainActivity"
-                android:label="Meeting Room">
+                android:label="Meeting Room"
+                android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
