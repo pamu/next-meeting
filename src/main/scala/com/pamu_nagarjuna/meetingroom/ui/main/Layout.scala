@@ -25,7 +25,7 @@ trait Layout
             w[TextView] <~ wire(errorMessageView) <~ errorTextStyle
           ) <~ linearLayoutStyle
         ) <~ cardStyle
-      ) <~ errorLayoutStyle <~ wire(errorView) <~ ViewTweaks.vInvisible,
+      ) <~ errorLayoutStyle <~ wire(errorView) <~ ViewTweaks.vGone,
       w[RecyclerView] <~ wire(recyclerView) <~ listStyle
     ) <~ contentStyle
   )
