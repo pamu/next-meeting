@@ -1,10 +1,10 @@
 object Versions {
 
   val appV = "1.0.0"
-  val scalaV = "2.11.4"
+  val scalaV = "2.11.7"
   val androidPlatformV = "android-22"
   val androidV = "22.1.1"
-  val androidPluginV = "1.3.13"
+  val androidPluginV = "1.5.1"
   val macroidExtrasV = "0.2"
   val macroidV = "2.0.0-20150427"
   val wartremoverV = "0.11"

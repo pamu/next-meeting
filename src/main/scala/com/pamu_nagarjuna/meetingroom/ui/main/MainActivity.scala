@@ -9,15 +9,11 @@ import android.support.v7.widget.{LinearLayoutManager, GridLayoutManager}
 import android.view.{MenuItem, Menu}
 import com.fortysevendeg.macroid.extras.DeviceMediaQueries._
 import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
+import com.fortysevendeg.macroid.extras.{TextTweaks, ViewTweaks}
 import com.pamu_nagarjuna.meetingroom.R
 import com.pamu_nagarjuna.meetingroom.ui.service.{MeetingRoomService, ServiceCallback}
-import com.pamu_nagarjuna.meetingroom.ui.utils.Utils
 import macroid.Contexts
 import macroid.FullDsl._
-import play.api.libs.json.{Json, JsValue}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
  * Created by pnagarjuna on 14/08/15.
@@ -28,57 +24,30 @@ class MainActivity
   with Layout
   with ServiceCallback {
 
-  override def update(): Unit = {
-    val calendar = Calendar.getInstance()
-    val now = calendar.getTime
-    calendar.add(Calendar.HOUR, spanBar.map(_.getProgress).getOrElse(100))
-    val after = calendar.getTime
-
-    val slots = Utils.getEvents(now, after).flatMap { json => {
-      Future {
-        println(Json.prettyPrint(json))
-        val items = (json \ "items").as[List[JsValue]]
-        val slots = items.map { item =>
-          Slot((item \ "summary").as[String],
-            (item \ "description").asOpt[String].getOrElse("No Description"),
-            ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
-            ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
-        }
-        if (slots.isEmpty) List(Slot("No Events", "No events to show", "", "")) else
-          slots
-      }
-    }}
-
-    //slots.recover { case th =>  List(Slot("Error occurred", th.getMessage))}
-
+  override def updateView(): Unit = {
     val layoutManager =
       landscapeTablet ?
         new GridLayoutManager(this, 3) |
         tablet ?
           new GridLayoutManager(this, 2) | new LinearLayoutManager(this)
 
-    val adapter = new SlotListAdapter(List(Slot("Loading ...", "loading may take some time", "", "")))
+    val currentHour = Calendar.getInstance().get(Calendar.HOUR)
+    val slots = List(Slot(s"Current Hour $currentHour", true), Slot("Scala", true))
+    val adapter = new SlotListAdapter(slots)
 
     runUi(
-      recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
+      recyclerView <~ rvLayoutManager(layoutManager)
+        <~  rvAdapter(adapter)
     )
 
-    slots.recover {
-      case th => runUi(
-        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("failed to fetch", "ensure you have the key and you entered the key in the settings section", "", ""))))
-      )
-    }
-    runUi(
-      recyclerView <~ rvLayoutManager(layoutManager) <~ slots.map(slots => rvAdapter(new SlotListAdapter(slots)))
-    )
+   runUi(recyclerView <~ ViewTweaks.vInvisible)
+
+    runUi(errorView <~ ViewTweaks.vVisible, errorMessageView <~ TextTweaks.tvText("no network"))
 
   }
 
   val serviceConnection = new ServiceConnection {
-
-    override def onServiceDisconnected(componentName: ComponentName): Unit = {
-    }
-
+    override def onServiceDisconnected(componentName: ComponentName): Unit = {}
     override def onServiceConnected(componentName: ComponentName, iBinder: IBinder): Unit = {
       iBinder.asInstanceOf[MeetingRoomService#LocalBinder].getInstance().register(MainActivity.this)
     }
@@ -91,49 +60,7 @@ class MainActivity
     bindService(new Intent(getApplicationContext, classOf[MeetingRoomService]), serviceConnection, 0)
     startService(new Intent(getApplication, classOf[MeetingRoomService]))
 
-    val calendar = Calendar.getInstance()
-    val now = calendar.getTime
-    calendar.add(Calendar.HOUR, spanBar.map(_.getProgress).getOrElse(100))
-    val after = calendar.getTime
-
-    val slots = Utils.getEvents(now, after).flatMap { json => {
-      Future {
-        println(Json.prettyPrint(json))
-        val items = (json \ "items").as[List[JsValue]]
-        val slots = items.map { item =>
-          Slot((item \ "summary").as[String],
-            (item \ "description").asOpt[String].getOrElse("No Description"),
-            ((item \ "start") \ "dateTime").asOpt[String].getOrElse(((item \ "start") \ "date").as[String]),
-            ((item \ "end") \ "dateTime").asOpt[String].getOrElse(((item \ "end") \ "date").as[String]))
-        }
-        if (slots.isEmpty) List(Slot("No Events", "No events to show", "", "")) else
-        slots
-      }
-    }}
-
-    //slots.recover { case th =>  List(Slot("Error occurred", th.getMessage))}
-
-    val layoutManager =
-      landscapeTablet ?
-        new GridLayoutManager(this, 3) |
-        tablet ?
-          new GridLayoutManager(this, 2) | new LinearLayoutManager(this)
-
-    val adapter = new SlotListAdapter(List(Slot("No Items", "Kill and relaunch the app to load", "", "")))
-
-    runUi(
-      recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(adapter)
-    )
-
-    slots.recover {
-      case th => runUi(
-        recyclerView <~ rvLayoutManager(layoutManager) <~ rvAdapter(new SlotListAdapter(List(Slot("failed to fetch", "ensure you have the key and you entered the key in the settings section", "", ""))))
-      )
-    }
-    runUi(
-      recyclerView <~ rvLayoutManager(layoutManager) <~ slots.map(slots => rvAdapter(new SlotListAdapter(slots)))
-    )
-
+    updateView()
 
     toolBar map setSupportActionBar
 

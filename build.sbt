@@ -4,6 +4,7 @@ import Libraries.playServices._
 import Libraries.apacheCommons._
 import Libraries.json._
 import Libraries.test._
+import android.Keys._
 
 android.Plugin.androidBuild
 
@@ -46,12 +47,11 @@ libraryDependencies ++= Seq(
 
 run <<= run in Android
 
-
-apkbuildExcludes in Android ++= Seq(
+packagingOptions in Android := PackagingOptions(Seq(
   "META-INF/LICENSE",
   "META-INF/LICENSE.txt",
   "META-INF/NOTICE",
-  "META-INF/NOTICE.txt")
+  "META-INF/NOTICE.txt"), Seq.empty[String], Seq.empty[String])
 
 packageRelease <<= packageRelease in Android
 

@@ -9,7 +9,7 @@ import com.fortysevendeg.macroid.extras.FrameLayoutTweaks._
 import com.fortysevendeg.macroid.extras.LinearLayoutTweaks._
 import com.fortysevendeg.macroid.extras.ResourcesExtras._
 import com.fortysevendeg.macroid.extras.SeekBarEventsExtras.OnSeekBarChangeListenerHandler
-import com.fortysevendeg.macroid.extras.TextTweaks
+import com.fortysevendeg.macroid.extras.{LinearLayoutTweaks, CardViewTweaks, TextTweaks}
 import com.fortysevendeg.macroid.extras.TextTweaks._
 import com.fortysevendeg.macroid.extras.ThemeExtras._
 import com.fortysevendeg.macroid.extras.ViewGroupTweaks._
@@ -24,6 +24,7 @@ import scala.language.postfixOps
  */
 trait Styles {
 
+  /**
   def progressChange(f: (SeekBar, Int, Boolean) => Unit)(implicit contextWrapper: ContextWrapper): Tweak[SeekBar] =
     Tweak[SeekBar](_.setOnSeekBarChangeListener(new OnSeekBarChangeListener {
       override def onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean): Unit = {
@@ -33,7 +34,7 @@ trait Styles {
       override def onStopTrackingTouch(seekBar: SeekBar): Unit = {}
 
       override def onStartTrackingTouch(seekBar: SeekBar): Unit = {}
-    }))
+    })) **/
 
   def contentStyle(implicit context: ContextWrapper): Tweak[LinearLayout] =
     llVertical +
@@ -51,10 +52,26 @@ trait Styles {
       tvSizeResource(R.dimen.text_size) +
       tvColorResource(R.color.primary)
 
+  /**
   def spanBarStyle(implicit context: ContextWrapper): Tweak[SeekBar] =
     vMatchWidth +
-      vPadding(20, 10, 20, 10)
+      vPadding(20, 10, 20, 10) **/
 
+  def linearLayoutStyle(implicit context: ContextWrapper): Tweak[LinearLayout] =
+  llVertical + vMatchWidth
+
+  def errorLayoutStyle(implicit context: ContextWrapper): Tweak[LinearLayout] =
+    llVertical + vMatchWidth + LinearLayoutTweaks.llLayoutMargin(20, 10, 20, 10)
+
+  def errorTextStyle(implicit context: ContextWrapper): Tweak[TextView] =
+    vMatchWidth + tvGravity(Gravity.CENTER) +
+      tvSizeResource(R.dimen.text_size) +
+      tvColorResource(R.color.primary)
+
+  def cardStyle(implicit activityContextWrapper: ActivityContextWrapper): Tweak[CardView] =
+    vMatchWidth +
+      vMinHeight(resGetDimensionPixelSize(R.dimen.card_height)) +
+      (themeGetDrawable(android.R.attr.selectableItemBackground) map flForeground getOrElse Tweak.blank)
 }
 
 trait AdapterStyles {

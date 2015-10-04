@@ -10,7 +10,7 @@ import com.fortysevendeg.macroid.extras.TextTweaks._
  * Created by pnagarjuna on 28/08/15.
  */
 
-case class Slot(title: String, description: String, startTime: String, endTime: String)
+case class Slot(title: String, busy: Boolean)
 
 class SlotListAdapter(slotList: List[Slot])(implicit context: ActivityContextWrapper)
   extends RecyclerView.Adapter[ViewHolder] {
@@ -20,10 +20,7 @@ class SlotListAdapter(slotList: List[Slot])(implicit context: ActivityContextWra
   override def onBindViewHolder(vh: ViewHolder, i: Int): Unit = {
     val slot = slotList(i)
     runUi {
-      (vh.title <~ tvText(slot.title)) ~
-        (vh.description <~ tvText(slot.description)) ~
-        (vh.startTime <~ tvText(slot.startTime)) ~
-        (vh.endTime <~ tvText(slot.endTime))
+      (vh.title <~ tvText(slot.title))
     }
   }
 
@@ -37,7 +34,4 @@ case class ViewHolder(adapter: Adapter)(implicit context: ActivityContextWrapper
   extends RecyclerView.ViewHolder(adapter.layout) {
   val content = adapter.content
   val title = adapter.title
-  val description = adapter.description
-  val startTime = adapter.startTime
-  val endTime = adapter.endTime
 }
