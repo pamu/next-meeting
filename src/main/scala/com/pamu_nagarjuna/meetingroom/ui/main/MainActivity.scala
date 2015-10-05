@@ -1,6 +1,6 @@
 package com.pamu_nagarjuna.meetingroom.ui.main
 
-import java.util.{TimeZone, Calendar}
+import java.util.Calendar
 
 import android.content.{Intent, ComponentName, ServiceConnection}
 import android.os.{IBinder, Bundle}
@@ -13,10 +13,11 @@ import com.fortysevendeg.macroid.extras.RecyclerViewTweaks._
 import com.fortysevendeg.macroid.extras.{TextTweaks, ViewTweaks}
 import com.pamu_nagarjuna.meetingroom.R
 import com.pamu_nagarjuna.meetingroom.ui.service.{MeetingRoomService, ServiceCallback}
+import com.pamu_nagarjuna.meetingroom.ui.utils._
 import com.pamu_nagarjuna.meetingroom.ui.utils.Utils
 import macroid.Contexts
 import macroid.FullDsl._
-import play.api.libs.json.{JsArray, JsValue}
+import play.api.libs.json.JsArray
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -43,8 +44,6 @@ class MainActivity
     now.add(Calendar.HOUR, 5)
     val endTime = now.getTime
 
-    case class Event(summary: String, desc: String, startTime: String, endTime: String)
-
     Log.d(LOG_TAG, s"start time $startTime")
     Log.d(LOG_TAG, s"end time $endTime")
 
@@ -60,8 +59,24 @@ class MainActivity
           ((event \ "end") \ "dateTime").asOpt[String].getOrElse(((event \ "end") \ "date").as[String])
         )
         Log.d(LOG_TAG, s"event obj $eventObj")
-        Slot(eventObj.summary, true)
-      }.reverse
+        Utils.box(eventObj)
+      }.map { box =>
+        box match {
+          case One => 1
+          case Two => 2
+          case Three => 3
+          case OtherBox => 4
+          case AllDay => 5
+        }
+      }.map{x => Log.d(LOG_TAG, s"value x $x"); x}.foldLeft(Map[Int, Int](1 -> 0, 2 -> 0, 3 -> 0)){ (r, c) =>
+        Log.d(LOG_TAG, r.mkString(","))
+        if (r.contains(c)) r + (c -> (r(c) + 1))
+        else r
+      }.toList.sortWith(_._1 < _._1).map { pair =>
+        if (pair._2 == 0)
+          Slot("Free", true)
+        else Slot("busy", true)
+      }
     }
 
     showError("Loading ...")
